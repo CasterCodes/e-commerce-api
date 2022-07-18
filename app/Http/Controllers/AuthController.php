@@ -17,7 +17,6 @@ class AuthController extends Controller
             'password' => 'required|string|confirmed',
          ]);
 
-
          $user = User::create([
               'name' => $data['name'],
               'email' => $data['email'],
@@ -41,13 +40,10 @@ class AuthController extends Controller
             'password' => 'required|string'
          ]);
 
-
          $user = User::where('email', $data['email'])->first();
 
-        
-
          if(!$user || !Hash::check($data['password'], $user->password)) {
-            return response()->json(['message' => 'You provided wront credentials']);
+            return response()->json(['message' => 'You provided wrong credentials']);
          }
 
           $token = $user->createToken('e-commerce-token')->plainTextToken;
@@ -62,6 +58,8 @@ class AuthController extends Controller
 
     public function logout () {
         auth()->user()->tokens()->delete();
+
+        return response(null, 200);
     }
 
 }

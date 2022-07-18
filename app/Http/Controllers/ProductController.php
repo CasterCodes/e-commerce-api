@@ -2,11 +2,13 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Library\AuthorizeRequest;
 use App\Models\Product;
 use Illuminate\Http\Request;
 
 class ProductController extends Controller
 {
+    use AuthorizeRequest;
     /**
      * Display a listing of the resource.
      *
@@ -26,7 +28,15 @@ class ProductController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        // check if user is authorized to create product
+        if(!$this->restrictTo(['admin'], auth()->user())) {
+            return response()->json([
+                'message' => 'You are not allowed to perform this action',
+                401
+            ]);
+        }
+
+        // validation
         $body = $request->validate([
             'name' => ['required'],
             'price' => ['required'],
@@ -40,7 +50,12 @@ class ProductController extends Controller
 
        $product = Product::create($body);
 
-       return  response()->json($product, 201);
+       $response = [
+        'product' => $product,
+        'user' => $request->user()->tokenCan()
+       ];
+
+       return  response()->json($response, 201);
     }
 
     /**
@@ -64,6 +79,12 @@ class ProductController extends Controller
      */
     public function update(Request $request, Product $product)
     {
+         if(!$this->restrictTo(['admin'], auth()->user())) {
+            return response()->json([
+                'message' => 'You are not allowed to perform this action'
+            ]);
+        }
+
         $product->update($request->all());
 
         return response()->json($product, 200);
@@ -78,7 +99,14 @@ class ProductController extends Controller
      */
     public function destroy(Product $product)
     {
-        //
+         if(!$this->restrictTo(['admin'], auth()->user())) {
+            return response()->json([
+                'message' => 'You are not allowed to perform this action',
+                401
+            ]);
+        }
+        
+        // delete product
         $product->delete();
 
         return response()->json(null, 204);
@@ -90,7 +118,6 @@ class ProductController extends Controller
 
     public function search($query) {
          $products = Product::where('name', 'like', "%" .$query. "%")->where('description', 'like',"%" .$query. "%" )->get();
-
          return response()->json($products, 200);
     }
 }
