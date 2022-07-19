@@ -17,7 +17,7 @@ class ProductController extends Controller
     public function index()
     {
         //
-        return Product::latest()->paginate(6);
+        return Product::latest()->filter(request(['search', 'brand', 'category']))->paginate(6);
     }
 
     /**
@@ -37,14 +37,7 @@ class ProductController extends Controller
         }
 
         // validation
-        $body = $request->validate([
-            'name' => ['required'],
-            'price' => ['required'],
-            'description' => ['required'],
-            'category' => ['required'],
-            'countInStock' => ['required'],
-            'brand' => ['required'],
-        ]);
+        $body = $request->validate();
 
        $body['user_id'] = 1;
 
@@ -82,7 +75,7 @@ class ProductController extends Controller
          if(!$this->restrictTo(['admin'], auth()->user())) {
             return response()->json([
                 'message' => 'You are not allowed to perform this action'
-            ]);
+            ], 400);
         }
 
         $product->update($request->all());
@@ -102,8 +95,8 @@ class ProductController extends Controller
          if(!$this->restrictTo(['admin'], auth()->user())) {
             return response()->json([
                 'message' => 'You are not allowed to perform this action',
-                401
-            ]);
+             
+            ], 401);
         }
         
         // delete product

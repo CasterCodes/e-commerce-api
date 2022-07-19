@@ -1,7 +1,9 @@
 <?php
 
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\ProductController;
+use App\Models\Category;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -23,9 +25,16 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 
 // Protected routes
 Route::group(['middleware' => ['auth:sanctum']], function() {
+    // products
      Route::post('/products', [ProductController::class, 'store']);
      Route::put('/products/{product}', [ProductController::class, 'update']);
      Route::delete('/products/{product}', [ProductController::class, 'destroy']);
+
+     // categories
+     Route::post('/categories', [CategoryController::class, 'store']);
+     Route::get('/categories/{category}', [CategoryController::class, 'show']);
+     Route::delete('/categories/{category}', [CategoryController::class, 'destroy']);
+     Route::put('/categories/{category}', [CategoryController::class, 'update']);
 
      // auth
      Route::get('/auth/logout', [AuthController::class, 'logout']);
@@ -38,6 +47,7 @@ Route::group(['middleware' => ['auth:sanctum']], function() {
 Route::get('/products/search/{query}', [ProductController::class, 'search']);
 Route::get('/products', [ProductController::class, 'index']);
 Route::get('/products/{product}', [ProductController::class, 'show']);
+Route::get('/categories', [CategoryController::class, 'index']);
 
 
 // auth

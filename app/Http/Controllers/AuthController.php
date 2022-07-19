@@ -2,25 +2,29 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Library\ValidateAuthRequest;
 use App\Models\User;
+
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Validator;
 
 class AuthController extends Controller
 {
-    //
-
+    use ValidateAuthRequest;
+   
     public function signup(Request $request) {
-         $data = $request->validate([
-            'name' => 'required|string',
-            'email' => 'required|string|unique:users,email',
-            'password' => 'required|string|confirmed',
-         ]);
+
+         $validator = Validator::make($request->all(), $this->signupValidationRules());
+
+         if(!$validator->passes()) {
+            return response()->json($validator->errors(), 400);
+         }
 
          $user = User::create([
-              'name' => $data['name'],
-              'email' => $data['email'],
-              'password' => bcrypt($data['password'])
+            'name' => $validator->validated()['name'],
+            'email' => $validator->validated()['email'],
+            'password' => bcrypt($validator->validated()['password'])
          ]);
 
          $token = $user->createToken('e-commerce-token')->plainTextToken;
@@ -35,15 +39,17 @@ class AuthController extends Controller
     }
 
     public function signin (Request $request) {
-         $data = $request->validate([
-            'email' => 'required|string',
-            'password' => 'required|string'
-         ]);
+         
+         $validator = Validator::make($request->all(), $this->signinValidationRules());
 
-         $user = User::where('email', $data['email'])->first();
+          if(!$validator->passes()) {
+            return response()->json($validator->errors(), 400);
+         }
 
-         if(!$user || !Hash::check($data['password'], $user->password)) {
-            return response()->json(['message' => 'You provided wrong credentials']);
+         $user = User::where('email', $validator->validated()['email'])->first();
+
+         if(!$user || !Hash::check($validator->validated()['password'], $user->password)) {
+            return response()->json(['message' => 'You have provided wrong crenditails']);
          }
 
           $token = $user->createToken('e-commerce-token')->plainTextToken;
