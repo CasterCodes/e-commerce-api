@@ -3,7 +3,7 @@
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\ProductController;
-use App\Models\Category;
+use App\Http\Controllers\ReviewController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -36,22 +36,34 @@ Route::group(['middleware' => ['auth:sanctum']], function() {
      Route::delete('/categories/{category}', [CategoryController::class, 'destroy']);
      Route::put('/categories/{category}', [CategoryController::class, 'update']);
 
+     // reviews 
+     Route::post('reviews/{product}', [ReviewController::class, 'store']);
+     Route::delete('reviews/{review}', [ReviewController::class, 'destroy']);
+     Route::put('reviews/{review}', [ReviewController::class, 'update']);
+
+
      // auth
      Route::get('/auth/logout', [AuthController::class, 'logout']);
 });
 
 
 
-// Route::resource('products', ProductController::class);
+// PUBLIC ROUTES
 
+// product public routes
 Route::get('/products/search/{query}', [ProductController::class, 'search']);
 Route::get('/products', [ProductController::class, 'index']);
 Route::get('/products/{product}', [ProductController::class, 'show']);
+
+// categories public routes
 Route::get('/categories', [CategoryController::class, 'index']);
 
 
-// auth
+// reviews public routers
+Route::get('reviews/{product}', [ReviewController::class, 'index']);
 
+
+// auth public routes
 Route::post('/auth/signup', [AuthController::class, 'signup']);
 
 Route::post('/auth/signin', [AuthController::class, 'signin']);

@@ -57,9 +57,17 @@ class ProductController extends Controller
      * @param  \App\Models\Product  $product
      * @return \Illuminate\Http\Response
      */
-    public function show(Product $product)
+    public function show(Request $request, $id)
     {
-        //
+        $product  = '';
+
+        if($request->query('include_reviews')) {
+             $product = Product::with('reviews')->find($id);
+             return  response()->json($product, 200);
+        }
+
+        $product = Product::find($id);
+        
         return  response()->json($product, 200);
     }
 
