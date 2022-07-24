@@ -31,13 +31,13 @@ class ProductController extends Controller
         // check if user is authorized to create product
         if(!$this->restrictTo(['admin'], auth()->user())) {
             return response()->json([
-                'message' => 'You are not allowed to perform this action',
-                401
-            ]);
+                'message' => 'You are not allowed to perform this action',   
+            ], 401);
         }
 
+        
         // validation
-        $body = $request->validate();
+      $body = $request->all();
 
        $body['user_id'] = 1;
 
@@ -45,7 +45,7 @@ class ProductController extends Controller
 
        $response = [
         'product' => $product,
-        'user' => $request->user()->tokenCan()
+
        ];
 
        return  response()->json($response, 201);
